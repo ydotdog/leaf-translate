@@ -39,6 +39,14 @@
 
 测试时 macOS 拒绝 Chrome 执行位于 Documents 内的连接脚本；将隔离测试组件移至临时目录后成功。正式安装器始终把组件复制到用户的 Application Support 目录，并不从下载/文稿目录运行主机。
 
+## macOS 实际浏览器安装
+
+- 安装器已为 Google Chrome 与 Dia 1.51.0 注册本地主机，将扩展复制到 `~/Library/Application Support/Leaf Translate/extension`。
+- 在两个浏览器各自的扩展管理页开启开发者模式，加载固定目录；均成功启用叶译 0.1.0，扩展 ID 一致。
+- 两个浏览器的真实本地主机均返回未登录状态，设置页显示 Continue with ChatGPT；Chrome 工具栏弹窗也已验证。
+- Chrome 首次目录选择按钮灰色，重启浏览器后正常加载。未修改浏览器配置文件来强行注入扩展。
+- 此检查没有登录真实账号，也没有发送网页段落或消耗 ChatGPT 额度。Dia 尚未进行真实网页翻译排版测试。
+
 ## 尚未验证
 
 - 用户真实 OAuth 登录、同意授权、账号资格、模型列表和真实 Responses 请求。
