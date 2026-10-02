@@ -40,7 +40,14 @@ export function serializeNodes(nodes) {
   const text=nodes.map(visit).join('').replace(/[ \t]+/g,' ').trim();return {text,tags};
 }
 export function collectBlocks(document,scope='article',limit=3000) {
-  const root=(scope==='article' && ([...document.querySelectorAll('article')].find(visible) || [...document.querySelectorAll('main,[role="main"]')].find(visible))) || document.body;
+  // A feed can contain many articles (and recycle them). Prefer its stable main
+  // container instead of restricting every scan to whichever post comes first.
+  let root=document.body;
+  if(scope==='article') {
+    const main=[...document.querySelectorAll('main,[role="main"]')].find(visible);
+    const articles=[...document.querySelectorAll('article')].filter(el=>!el.parentElement?.closest('article') && visible(el));
+    root=main || (articles.length===1 ? articles[0] : document.body);
+  }
   if(!root)return [];
   const walker=document.createTreeWalker(root,4);const owners=new Map();let node,count=0;
   while((node=walker.nextNode()) && count<120000) {

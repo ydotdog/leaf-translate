@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Leaf dynamic feed regression</title>
+<style>body{font:17px/1.6 system-ui;max-width:700px;margin:auto;padding:24px}nav{position:sticky;top:0;background:white;padding:12px;z-index:10}button,a{margin:5px}article{min-height:220px;border-bottom:1px solid #bbb;padding:20px}#sentinel{height:30px}</style>
+<nav translate="no">Local fixture — fixed translations only.<br><button id="add">Add post</button><button id="reuse">Reuse first node</button><button id="push">Push route</button><button id="replace">Replace route</button><a href="feed-next.html">Next document</a></nav>
+<main></main><div id="sentinel" translate="no">Load more</div><div id="activity" aria-hidden="true"></div>
+<script>
+let count=0,version=0;const main=document.querySelector('main');
+function add(){const article=document.createElement('article');article.innerHTML=`<p>Feed post number ${++count}. A fresh story for the reader.</p>`;main.append(article);}
+for(let i=0;i<8;i++)add();
+document.querySelector('#add').onclick=add;
+document.querySelector('#reuse').onclick=()=>{main.querySelector('p').firstChild.data=`Reused node version ${++version}. The source has changed again.`;};
+function route(method){history[method]({},'',`?route=${++version}`);main.replaceChildren();for(let i=0;i<4;i++)add();}
+document.querySelector('#push').onclick=()=>route('pushState');document.querySelector('#replace').onclick=()=>route('replaceState');
+addEventListener('popstate',()=>{main.replaceChildren();for(let i=0;i<4;i++)add();});
+new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)&&count<32)for(let i=0;i<4;i++)add();}).observe(document.querySelector('#sentinel'));
+setInterval(()=>{document.querySelector('#activity').className='frame-'+Date.now();},40);
+</script></html>

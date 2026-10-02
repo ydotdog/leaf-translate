@@ -1,0 +1,67 @@
+
+> leaf-translate@0.1.0 pretest
+> npm run build
+
+
+> leaf-translate@0.1.0 build
+> node scripts/build.mjs
+
+Built extension hkpccpakokoliiahjeifekgadoffdpac
+Load unpacked: <repo>/dist/extension
+
+> leaf-translate@0.1.0 test
+> node --test tests/*.test.mjs
+
+✔ same-document push/replace/back/forward routes resume without another user gesture (5.624042ms)
+✔ same-origin new documents reinject on completion and preserve pause (3.27425ms)
+✔ explicit stop prevents later automatic translation (1.888125ms)
+✔ cross-origin, changed port and unsupported URLs revoke continuation (4.506833ms)
+✔ stop during asynchronous injection cannot resurrect a session (5.354ms)
+✔ a superseded navigation cannot start translation for the old URL (0.968041ms)
+✔ previous document/run cannot submit work after same-origin continuation (0.783417ms)
+✔ visible paragraphs are batched and stop during flight never reinserts a translation (204.210833ms)
+✔ dynamic paragraph changes replace stale translations instead of appending duplicates (507.749583ms)
+✔ quota error pauses the queue without repeated calls and keeps original content (112.247667ms)
+✔ SPA URL changes clear stale content and request authorized continuation (525.087125ms)
+✔ popstate requests continuation and a paused navigation stays paused (125.130042ms)
+✔ new sibling posts translate while continuous mutations never become quiet (490.293125ms)
+✔ the same text node keeps translating successive changes during continuous page activity (1435.215084ms)
+✔ many virtual-list cycles translate fresh posts and release removed observers (2347.974708ms)
+✔ offscreen posts are deferred until intersection and removed feed elements are unobserved (519.06025ms)
+✔ virtualized source replacement during a request discards the old response (487.657ms)
+✔ recycled links with unchanged text update the translation link destination (484.79625ms)
+✔ removing one run keeps other runs on the same element observed (498.270334ms)
+✔ pause defers appended posts and resume translates them once (602.952583ms)
+✔ stop and enable again isolate late responses and clear prior work (559.981709ms)
+✔ batch validation rejects duplicate IDs, invalid language, oversize and arbitrary fields (1.786917ms)
+✔ translation response must match every ID and formatting marker (0.352625ms)
+✔ SSE handles fragmented UTF-8, CRLF, multiline transport and terminal success (5.093125ms)
+✔ SSE rejects truncation, incomplete output and late quota errors (0.708042ms)
+✔ public OAuth registration uses PKCE, stable host, nonce and full scopes (1.139458ms)
+✔ OAuth callback rejects state mismatch, declined authorization and client substitution (0.617708ms)
+✔ native framing accepts fragmented and combined messages; rejects oversize (0.498958ms)
+✔ credentials serialize concurrent writes and survive process-like store instances (180.870167ms)
+✔ refresh rotation is serialized and never exposed through status (39.616625ms)
+✔ terminal refresh failure clears tokens but keeps registration and host (7.192583ms)
+✔ Responses request uses authorized OAuth route and never adds billed fallback or unsupported fields (1.203125ms)
+✔ ID token signature, issuer, audience, expiry, nonce and returning identity are all verified (114.023167ms)
+✔ keeps paragraph semantics, links, emphasis, table cells and nested lists without duplicate text (110.201416ms)
+✔ skips editable content, hidden ancestors, code, opt-outs and controls (18.085ms)
+✔ inserts inside list items and table cells; restoration preserves original node identity and listeners (18.79925ms)
+✔ model HTML is rendered as inert text, unsafe source href is dropped, bad markers fail closed (8.457375ms)
+✔ long rich text splits into independently balanced chunks without text loss (9.784459ms)
+✔ dynamic replacement yields fresh source and does not translate injected content (16.836375ms)
+✔ full page mode includes sidebar content while article mode isolates the article (8.188625ms)
+✔ reading scope covers a main feed, including later articles, but excludes the sidebar (17.591375ms)
+✔ multiple sibling articles without main are all in reading scope (20.34125ms)
+✔ inline code stays byte-for-byte intact even if a model changes its text (9.948041ms)
+✔ flex/grid text stays inside an existing item and never adds a competing layout item (8.838458ms)
+✔ rich paragraphs with many tiny markers still split below the transport bound (5.839625ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9470.082834

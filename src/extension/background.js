@@ -2,6 +2,7 @@ import {HOST,DEFAULTS,LANGUAGES,AppError,publicError,validateBatch} from '../sha
 let port=null;
 const pending=new Map();
 const sessions=new Map();
+const navigationAttempts=new Map();
 const restoring=chrome.storage.session.get('sessions').then(({sessions:saved=[]})=>{for(const [id,s] of saved)sessions.set(id,s);});
 const persist=()=>chrome.storage.session.set({sessions:[...sessions]});
 function connect() {
@@ -25,9 +26,32 @@ function native(method,params={},tabId=null) {
   });
 }
 function cancel(tabId) {for(const [id,task] of pending){if(task.tabId===tabId){try{port?.postMessage({id:crypto.randomUUID(),method:'cancel',params:{requestId:id}});}catch{}clearTimeout(task.timer);task.reject(new AppError('CANCELLED','翻译已停止。'));pending.delete(id);}}}
-async function stop(tabId) {cancel(tabId);sessions.delete(tabId);await persist();await chrome.action.setBadgeText({tabId,text:''}).catch(()=>{});await chrome.tabs.sendMessage(tabId,{type:'leaf.stop'}).catch(()=>{});}
+async function stop(tabId) {navigationAttempts.delete(tabId);cancel(tabId);sessions.delete(tabId);await persist();await chrome.action.setBadgeText({tabId,text:''}).catch(()=>{});await chrome.tabs.sendMessage(tabId,{type:'leaf.stop'}).catch(()=>{});}
 async function stopAll(){await restoring;await Promise.all([...sessions.keys()].map(stop));}
 async function settings(){return {...DEFAULTS,...(await chrome.storage.local.get('settings')).settings};}
+function origin(url){try{const parsed=new URL(url);return /^https?:$/.test(parsed.protocol)?parsed.origin:null;}catch{return null;}}
+async function continuePage(tabId) {
+  const session=sessions.get(tabId);if(!session)return;
+  const attempt={};navigationAttempts.set(tabId,attempt);
+  const current=()=>sessions.get(tabId)===session && navigationAttempts.get(tabId)===attempt;
+  try {
+    const tab=await chrome.tabs.get(tabId);if(!current())return;
+    if(!origin(tab.url) || origin(tab.url)!==(session.origin || origin(session.url))){await stop(tabId);return;}
+    if(tab.status==='loading')return;
+    const injected=await chrome.scripting.executeScript({target:{tabId},files:['content.js']});if(!current())return;
+    const documentId=injected[0]?.documentId;
+    const latest=await chrome.tabs.get(tabId);if(!current())return;
+    if(latest.url!==tab.url || latest.status==='loading')return;
+    if(!documentId)throw new Error('Missing document');
+    if(session.documentId===documentId && session.url===tab.url && !session.needsResume)return;
+    cancel(tabId);
+    session.runId=crypto.randomUUID();session.documentId=documentId;session.url=tab.url;session.needsResume=true;
+    await persist();if(!current())return;
+    await chrome.tabs.sendMessage(tabId,{type:'leaf.start',runId:session.runId,settings:session.settings,paused:Boolean(session.paused)},{documentId});
+    if(current()){session.needsResume=false;await persist();}
+  }catch {if(current())await stop(tabId);}
+  finally{if(navigationAttempts.get(tabId)===attempt)navigationAttempts.delete(tabId);}
+}
 async function startPage(tabId) {
   await restoring;const tab=await chrome.tabs.get(tabId);
   if(!tab.url || !/^https?:/.test(tab.url) || /^https:\/\/chromewebstore\.google\.com\//.test(tab.url))throw new AppError('UNSUPPORTED_PAGE','此页面不允许插件翻译，请打开普通网页。');
@@ -36,7 +60,7 @@ async function startPage(tabId) {
   const config=await settings();if(!config.model)throw new AppError('MODEL_REQUIRED','请先选择一个 ChatGPT 模型。');
   await stop(tabId);
   let injected;try{injected=await chrome.scripting.executeScript({target:{tabId},files:['content.js']});}catch{throw new AppError('UNSUPPORTED_PAGE','无法访问此页面，请刷新网页后重试。');}
-  const runId=crypto.randomUUID();sessions.set(tabId,{runId,documentId:injected[0].documentId,url:tab.url,settings:config});await persist();
+  const runId=crypto.randomUUID();sessions.set(tabId,{runId,documentId:injected[0].documentId,url:tab.url,origin:origin(tab.url),settings:config,paused:false});await persist();
   try{await chrome.tabs.sendMessage(tabId,{type:'leaf.start',runId,settings:config},{documentId:injected[0].documentId});}catch{await stop(tabId);throw new AppError('PAGE_CHANGED','页面已变化，请重新开始翻译。');}
   await chrome.action.setBadgeBackgroundColor({tabId,color:'#246449'});await chrome.action.setBadgeText({tabId,text:'译'});return {started:true};
 }
@@ -51,6 +75,8 @@ async function handler(message,sender) {
     if(!session || session.documentId!==sender.documentId || (message.runId && session.runId!==message.runId))throw new AppError('CANCELLED','此页面翻译任务已结束。');
     if(message.type==='translate')return native('translate',validateBatch({...session.settings,items:message.items}),tabId);
     if(message.type==='cancelRequests'){cancel(tabId);return {cancelled:true};}
+    if(message.type==='pausePage'){session.paused=Boolean(message.paused);if(session.paused)cancel(tabId);await persist();return {paused:session.paused};}
+    if(message.type==='navigatePage'){await continuePage(tabId);return {continued:sessions.has(tabId)};}
     if(message.type==='stopPage'){await stop(tabId);return {stopped:true};}
     throw new AppError('DENIED','页面不支持此操作。');
   }
@@ -82,5 +108,15 @@ chrome.runtime.onInstalled.addListener(()=>{
 async function toggle(tab){if(!tab?.id)return;try{if(sessions.has(tab.id))await stop(tab.id);else await startPage(tab.id);}catch{await chrome.runtime.openOptionsPage();}}
 chrome.contextMenus.onClicked.addListener((info,tab)=>{if(info.menuItemId==='leaf-toggle')toggle(tab);});
 chrome.commands.onCommand.addListener(async command=>{if(command==='toggle-translation'){const [tab]=await chrome.tabs.query({active:true,currentWindow:true});toggle(tab);}});
-chrome.tabs.onRemoved.addListener(tabId=>{cancel(tabId);sessions.delete(tabId);persist();});
-chrome.tabs.onUpdated.addListener((tabId,change)=>{if(change.url || change.status==='loading'){if(sessions.has(tabId))stop(tabId);}});
+chrome.tabs.onRemoved.addListener(tabId=>{navigationAttempts.delete(tabId);cancel(tabId);sessions.delete(tabId);persist();});
+chrome.tabs.onUpdated.addListener(async(tabId,change,tab)=>{
+  await restoring;const session=sessions.get(tabId);if(!session)return;
+  const url=change.url || tab?.url;
+  // activeTab survives same-origin navigation only. Never turn tab consent into
+  // persistent access to a different site, or request broader host permissions.
+  if(url && origin(url)!==(session.origin || origin(session.url))){await stop(tabId);return;}
+  if(change.status==='loading'){
+    navigationAttempts.delete(tabId);cancel(tabId);session.documentId=null;session.needsResume=true;await persist();return;
+  }
+  if(change.url || change.status==='complete')await continuePage(tabId);
+});

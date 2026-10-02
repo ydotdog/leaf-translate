@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-02",
+  "transport": "local fixed-response fixture; no real model calls",
+  "xScroll": [
+    {
+      "url": "https://x.com/OpenAI",
+      "y": 0,
+      "status": "19 / 29 段 · 随阅读继续",
+      "posts": [
+        {
+          "translations": 4,
+          "top": 754
+        },
+        {
+          "translations": 2,
+          "top": 1346
+        },
+        {
+          "translations": 0,
+          "top": 1818
+        },
+        {
+          "translations": 0,
+          "top": 2281
+        },
+        {
+          "translations": 0,
+          "top": 2783
+        }
+      ]
+    },
+    {
+      "y": 850,
+      "status": "23 / 29 段 · 随阅读继续",
+      "posts": [
+        4,
+        3,
+        3,
+        0,
+        0
+      ]
+    },
+    {
+      "y": 1700,
+      "status": "26 / 29 段 · 随阅读继续",
+      "posts": [
+        4,
+        3,
+        3,
+        3,
+        0
+      ]
+    },
+    {
+      "y": 2550,
+      "status": "29 / 29 段 · 随阅读继续",
+      "posts": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "y": 3192,
+      "status": "29 / 29 段 · 随阅读继续",
+      "posts": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "y": 3192,
+      "status": "29 / 29 段 · 随阅读继续",
+      "posts": [
+        4,
+        3,
+        3,
+        3,
+        3
+      ]
+    }
+  ],
+  "xNavigation": {
+    "url": "https://x.com/OpenAI/status/2104986129686741046",
+    "status": "13 / 24 段 · 随阅读继续",
+    "translations": 13
+  },
+  "xBack": {
+    "url": "https://x.com/OpenAI",
+    "status": "18 / 28 段 · 随阅读继续",
+    "translations": 18
+  },
+  "localFeed": [
+    {
+      "step": "initial",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 12,
+      "translations": 6,
+      "status": "6 / 12 段 · 随阅读继续"
+    },
+    {
+      "step": "infinite-scroll-with-40ms-mutations",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 20,
+      "translations": 17,
+      "status": "17 / 20 段 · 随阅读继续"
+    },
+    {
+      "step": "reused-text-1",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 24,
+      "translations": 22,
+      "status": "22 / 24 段 · 随阅读继续"
+    },
+    {
+      "step": "reused-text-2",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 24,
+      "translations": 22,
+      "status": "22 / 24 段 · 随阅读继续"
+    },
+    {
+      "step": "paused-added-post",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 29,
+      "translations": 22,
+      "status": "22 / 29 段 · 已暂停"
+    },
+    {
+      "step": "resumed",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 29,
+      "translations": 27,
+      "status": "27 / 29 段 · 随阅读继续"
+    },
+    {
+      "step": "pushState",
+      "url": "http://127.0.0.1:8765/feed.html?route=3",
+      "posts": 4,
+      "translations": 4,
+      "status": "4 / 4 段 · 随阅读继续"
+    },
+    {
+      "step": "replaceState",
+      "url": "http://127.0.0.1:8765/feed.html?route=4",
+      "posts": 4,
+      "translations": 4,
+      "status": "4 / 4 段 · 随阅读继续"
+    },
+    {
+      "step": "back",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 4,
+      "translations": 4,
+      "status": "4 / 4 段 · 随阅读继续"
+    },
+    {
+      "step": "forward",
+      "url": "http://127.0.0.1:8765/feed.html?route=4",
+      "posts": 4,
+      "translations": 4,
+      "status": "4 / 4 段 · 随阅读继续"
+    },
+    {
+      "step": "new-document-automatic",
+      "url": "http://127.0.0.1:8765/feed-next.html",
+      "posts": 1,
+      "translations": 1,
+      "status": "1 / 1 段 · 随阅读继续"
+    },
+    {
+      "step": "paused-new-document",
+      "url": "http://127.0.0.1:8765/feed-next.html",
+      "posts": 1,
+      "translations": 0,
+      "status": "0 / 1 段 · 已暂停"
+    },
+    {
+      "step": "stopped-new-document",
+      "url": "http://127.0.0.1:8765/feed.html",
+      "posts": 8,
+      "translations": 0
+    }
+  ],
+  "reenable": {
+    "url": "http://127.0.0.1:8765/feed.html",
+    "roots": 6,
+    "status": "5 / 8 段 · 随阅读继续"
+  },
+  "crossOrigin": {
+    "url": "http://localhost:8765/feed.html",
+    "roots": 0
+  }
+}

@@ -31,6 +31,18 @@ test('full page mode includes sidebar content while article mode isolates the ar
   const document=doc('<aside><p>Related story</p></aside><article><p>Main story</p></article>');assert.equal(collectBlocks(document,'article').length,1);assert.equal(collectBlocks(document,'page').length,2);
 });
 
+test('reading scope covers a main feed, including later articles, but excludes the sidebar',()=>{
+  const document=doc('<aside><article><p>Sidebar story</p></article></aside><main><article><p>First post</p></article></main>');
+  assert.deepEqual(collectBlocks(document).map(b=>b.text),['First post']);
+  document.querySelector('main').insertAdjacentHTML('beforeend','<article><p>Later post</p></article>');
+  assert.deepEqual(collectBlocks(document).map(b=>b.text),['First post','Later post']);
+});
+
+test('multiple sibling articles without main are all in reading scope',()=>{
+  const document=doc('<article><p>First post</p></article><article><p>Second post</p></article>');
+  assert.deepEqual(collectBlocks(document).map(b=>b.text),['First post','Second post']);
+});
+
 test('inline code stays byte-for-byte intact even if a model changes its text',()=>{
   const document=doc('<p>Call <code>reader.restore()</code> now.</p>');const b=collectBlocks(document)[0];const fragment=renderTranslation(document,'调用 ⟦0⟧模型修改的代码⟦/0⟧。',b.tags);assert.equal(fragment.querySelector('code').textContent,'reader.restore()');
 });
