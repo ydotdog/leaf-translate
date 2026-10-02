@@ -1,0 +1,25 @@
+{
+  "name": "leaf-translate",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bilingual Chrome translation with official Sign in with ChatGPT",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "install:host": "node scripts/install-host.mjs",
+    "uninstall:host": "node scripts/install-host.mjs --uninstall",
+    "pretest": "npm run build"
+  },
+  "dependencies": {
+    "jose": "^6.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^26.1.0"
+  }
+}
