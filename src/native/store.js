@@ -7,7 +7,7 @@ export class CredentialStore {
   constructor(directory) { this.directory = directory; this.file = join(directory, 'credentials.json'); this.tail = Promise.resolve(); }
   async read() {
     try { return JSON.parse(await readFile(this.file, 'utf8')); }
-    catch (e) { if (e.code !== 'ENOENT') throw new AppError('STORAGE', '无法读取本地连接信息。'); return null; }
+    catch (e) { if (e.code !== 'ENOENT') throw new AppError('STORAGE', 'errorStorage'); return null; }
   }
   withState(fn) {
     const operation = this.tail.catch(()=>{}).then(async () => {
@@ -21,7 +21,7 @@ export class CredentialStore {
           await new Promise(resolve=>setTimeout(resolve,100));
         }
       }
-      if (!acquired) throw new AppError('BUSY', '另一窗口正在更新登录，请稍后重试。');
+      if (!acquired) throw new AppError('BUSY', 'errorStorageBusy');
       try {
         const state = await this.read() || {version:1, hostId:`urn:uuid:${randomUUID()}`, active:null, profiles:[]};
         const result = await fn(state);

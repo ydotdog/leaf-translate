@@ -21,18 +21,18 @@ async function handle(message) {
     let result;
     if(method==='status')result=await auth.status();
     else if(method==='login' || method==='select' || method==='logout' || method==='cancelLogin') {
-      if(accountBusy)throw new AppError('BUSY','账号正在更新，请稍候。');accountBusy=true;abortAll();
+      if(accountBusy)throw new AppError('BUSY','errorAccountBusy');accountBusy=true;abortAll();
       try {result=method==='login'?await auth.signIn(params):method==='select'?await auth.select(params?.profileId):method==='logout'?await auth.signOut():(auth.finishLogin(),await auth.status());}finally{accountBusy=false;}
     } else if(method==='models')result=await listModels(auth);
     else if(method==='cancel'){running.get(params?.requestId)?.abort();result={cancelled:true};}
     else if(method==='translate') {
-      if(accountBusy || auth.pending)throw new AppError('BUSY','请先完成账号连接。');
-      if(running.size>=4)throw new AppError('BUSY','已有多个页面正在翻译，请稍后重试。');
+      if(accountBusy || auth.pending)throw new AppError('BUSY','errorFinishLogin');
+      if(running.size>=4)throw new AppError('BUSY','errorTooManyPages');
       const controller=new AbortController();running.set(id,controller);
       try{result=await translate(auth,params,controller.signal);}finally{running.delete(id);}
-    }else throw new AppError('METHOD','不支持的操作。');
+    }else throw new AppError('METHOD','errorMethod');
     send({id,ok:true,result});
-  }catch(e){send({id,ok:false,error:e?.name==='AbortError'?{code:'CANCELLED',message:'翻译已停止。'}:publicError(e)});}
+  }catch(e){send({id,ok:false,error:publicError(e?.name==='AbortError'?new AppError('CANCELLED','errorStopped'):e)});}
 }
 const decoder=new FrameDecoder(handle);
 process.stdin.on('data',chunk=>{try{decoder.push(chunk);}catch{abortAll();process.exit(1);}});

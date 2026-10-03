@@ -2,13 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {JSDOM} from 'jsdom';
+import {catalogs} from '../src/shared/i18n.js';
 const bundle=await readFile(new URL('../dist/extension/content.js',import.meta.url),'utf8');
 const tick=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(check){for(let i=0;i<60;i++){if(check())return;await tick(20);}assert.fail('Timed out waiting for content state');}
-function harness(body,translate,{raw=false}={}){
+function harness(body,translate,{raw=false,locale='en'}={}){
   const dom=new JSDOM('<!doctype html><body>'+(raw?body:'<article>'+body+'</article>')+'</body>',{url:'https://example.org/story',runScripts:'outside-only',pretendToBeVisual:true});const {window}=dom;const requests=[];let listener,intersection;
   window.IntersectionObserver=class{constructor(callback){this.callback=callback;this.observed=new Set();intersection=this;}observe(el){this.observed.add(el);}unobserve(el){this.observed.delete(el);}disconnect(){this.observed.clear();}};
-  window.chrome={runtime:{onMessage:{addListener(fn){listener=fn;}},async sendMessage(message){requests.push(message);if(message.type==='translate')return translate(message);return {ok:true,result:{cancelled:true}};}}};
+  window.chrome={i18n:{getUILanguage:()=>locale},runtime:{onMessage:{addListener(fn){listener=fn;}},async sendMessage(message){requests.push(message);if(message.type==='translate')return translate(message);return {ok:true,result:{cancelled:true}};}}};
   window.eval(bundle);
   const message=value=>new Promise(resolve=>listener(value,{},resolve));
   const start=(runId='test-run')=>message({type:'leaf.start',runId,settings:{scope:'article',model:'fixture',target:'zh-CN',style:'subtle'}});
@@ -28,7 +29,7 @@ test('dynamic paragraph changes replace stale translations instead of appending 
   const h=harness('<p id="text">Before.</p>',async m=>reply(m));try{await h.start();await until(()=>h.count()===1);h.window.document.querySelector('#text').firstChild.textContent='After.';await until(()=>h.requests.filter(m=>m.type==='translate').length===2 && h.count()===1);const text=h.window.document.querySelector('[data-leaf-root="translation"]').shadowRoot.querySelector('.translation').textContent;assert.equal(text,'译文 After.');}finally{h.close();}
 });
 test('quota error pauses the queue without repeated calls and keeps original content',async()=>{
-  const h=harness('<p>Original sentence.</p>',async()=>({ok:false,error:{code:'subscription_sharing_usage_limit_exceeded',message:'额度受限'}}));try{await h.start();await until(()=>h.requests.length>0);await tick(100);const s=await h.message({type:'leaf.status'});assert.equal(s.paused,true);assert.equal(s.error,'额度受限');assert.equal(h.count(),0);assert.equal(h.window.document.querySelector('p').textContent,'Original sentence.');assert.equal(h.requests.filter(m=>m.type==='translate').length,1);}finally{h.close();}
+  const h=harness('<p>Original sentence.</p>',async()=>({ok:false,error:{code:'subscription_sharing_usage_limit_exceeded',messageKey:'errorUsageLimit',message:'Server fallback'}}));try{await h.start();await until(()=>h.requests.length>0);await tick(100);const s=await h.message({type:'leaf.status'});assert.equal(s.paused,true);assert.match(s.error,/usage limit/);assert.equal(h.count(),0);assert.equal(h.window.document.querySelector('p').textContent,'Original sentence.');assert.equal(h.requests.filter(m=>m.type==='translate').length,1);}finally{h.close();}
 });
 test('SPA URL changes clear stale content and request authorized continuation',async()=>{
   const h=harness('<p>Current page.</p>',async m=>reply(m));try{await h.start();await until(()=>h.count()===1);h.window.history.pushState({},'', '/new-page');const p=h.window.document.createElement('p');p.textContent='Different page.';h.window.document.querySelector('article').replaceChildren(p);await until(()=>h.requests.some(m=>m.type==='navigatePage'));assert.equal(h.count(),0);assert.ok(!h.requests.some(m=>m.type==='stopPage'));await h.start('continued-run');await until(()=>h.count()===1);assert.equal(h.requests.filter(m=>m.type==='translate').length,2);}finally{h.close();}
@@ -147,4 +148,9 @@ test('stop and enable again isolate late responses and clear prior work',async()
     h.window.document.querySelector('p').textContent='After stop.';await tick(500);assert.equal(h.count(),0);
     assert.equal(h.requests.filter(m=>m.type==='translate').length,2);
   }finally{h.close();}
+});
+
+for(const locale of Object.keys(catalogs))test(`${locale}: page toolbar follows browser UI locale through pause/resume`,async()=>{
+  const h=harness('<p>Source sentence.</p>',async m=>reply(m),{locale});
+  try{await h.start();await until(()=>h.count()===1);const host=h.window.document.querySelector('[data-leaf-root="toolbar"]'),root=host.shadowRoot;assert.equal(host.lang,locale);assert.equal(root.querySelector('.pause').textContent,catalogs[locale].pause);h.pause();assert.equal(root.querySelector('.pause').textContent,catalogs[locale].resume);assert.ok(root.querySelector('.status').textContent.includes(catalogs[locale].paused));h.pause();assert.equal(root.querySelector('.pause').textContent,catalogs[locale].pause);assert.equal(root.querySelectorAll('button')[1].textContent,catalogs[locale].restore);}finally{h.close();}
 });

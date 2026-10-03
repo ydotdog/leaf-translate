@@ -1,0 +1,56 @@
+[
+  {
+    "locale": "en",
+    "success": true,
+    "lang": "en",
+    "title": "ChatGPT connected · Leaf Translate",
+    "heading": "ChatGPT connected",
+    "body": "You can close this page and return to Leaf Translate to start reading.",
+    "overflow": false
+  },
+  {
+    "locale": "en",
+    "success": false,
+    "lang": "en",
+    "title": "Sign-in could not be completed · Leaf Translate",
+    "heading": "Sign-in could not be completed",
+    "body": "Return to Leaf Translate to check the status and try again.",
+    "overflow": false
+  },
+  {
+    "locale": "zh-CN",
+    "success": true,
+    "lang": "zh-CN",
+    "title": "ChatGPT 已连接 · Leaf Translate",
+    "heading": "ChatGPT 已连接",
+    "body": "可以关闭此页面，回到 Leaf Translate 开始阅读。",
+    "overflow": false
+  },
+  {
+    "locale": "zh-CN",
+    "success": false,
+    "lang": "zh-CN",
+    "title": "未能完成登录 · Leaf Translate",
+    "heading": "未能完成登录",
+    "body": "请回到 Leaf Translate 查看状态并重试。",
+    "overflow": false
+  },
+  {
+    "locale": "zh-TW",
+    "success": true,
+    "lang": "zh-TW",
+    "title": "ChatGPT 已連線 · Leaf Translate",
+    "heading": "ChatGPT 已連線",
+    "body": "可以關閉此頁面，回到 Leaf Translate 開始閱讀。",
+    "overflow": false
+  },
+  {
+    "locale": "zh-TW",
+    "success": false,
+    "lang": "zh-TW",
+    "title": "未能完成登入 · Leaf Translate",
+    "heading": "未能完成登入",
+    "body": "請回到 Leaf Translate 查看狀態並重試。",
+    "overflow": false
+  }
+]

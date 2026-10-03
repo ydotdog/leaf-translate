@@ -13,9 +13,15 @@ await Promise.all([
   build({entryPoints:[join(root,'src/extension/content.js')],outfile:join(dist,'extension/content.js'),bundle:true,format:'iife',platform:'browser',target:'chrome120'}),
   build({entryPoints:[join(root,'src/native/index.js')],outfile:join(dist,'native/host.mjs'),bundle:true,platform:'node',format:'esm',target:'node22',define:{EXTENSION_ID:JSON.stringify(id)},legalComments:'eof'})
 ]);
-const manifest={manifest_version:3,name:'叶译 · Leaf Translate',version:'0.1.0',description:'使用官方 ChatGPT 登录与额度，在原网页中阅读双语译文。',minimum_chrome_version:'120',key,permissions:['activeTab','scripting','storage','nativeMessaging','contextMenus'],background:{service_worker:'background.js',type:'module'},action:{default_popup:'popup.html',default_title:'叶译 · 翻译当前网页'},options_page:'options.html',commands:{'toggle-translation':{suggested_key:{default:'Alt+Shift+T'},description:'翻译网页 / 恢复原文'}},icons:Object.fromEntries([16,32,48,128].map(n=>[String(n),`icons/${n}.png`])),content_security_policy:{extension_pages:"script-src 'self'; object-src 'none'"}};
+const {version}=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
+const manifest={manifest_version:3,default_locale:'en',name:'__MSG_appName__',version,description:'__MSG_extensionDescription__',minimum_chrome_version:'120',key,permissions:['activeTab','scripting','storage','nativeMessaging','contextMenus'],background:{service_worker:'background.js',type:'module'},action:{default_popup:'popup.html',default_title:'__MSG_actionTitle__'},options_page:'options.html',commands:{'toggle-translation':{suggested_key:{default:'Alt+Shift+T'},description:'__MSG_commandToggle__'}},icons:Object.fromEntries([16,32,48,128].map(n=>[String(n),`icons/${n}.png`])),content_security_policy:{extension_pages:"script-src 'self'; object-src 'none'"}};
+for(const locale of ['en','zh_CN','zh_TW']){
+  const messages=JSON.parse(await readFile(join(root,`src/shared/locales/${locale}.json`),'utf8'));
+  const directory=join(dist,'extension','_locales',locale);await mkdir(directory,{recursive:true});
+  await writeFile(join(directory,'messages.json'),JSON.stringify(Object.fromEntries(Object.entries(messages).map(([key,message])=>[key,{message}])),null,2)+'\n');
+}
 await writeFile(join(dist,'extension/manifest.json'),JSON.stringify(manifest,null,2)+'\n');
-await cp(join(root,'src/extension/ui.css'),join(dist,'extension/ui.css'));for(const page of ['popup','options'])await cp(join(root,'src/extension/ui.html'),join(dist,`extension/${page}.html`));
+await cp(join(root,'src/extension/ui.css'),join(dist,'extension/ui.css'));for(const page of ['popup','options']){const html=(await readFile(join(root,'src/extension/ui.html'),'utf8')).replace('v0.1</span>',`v${version}</span>`);await writeFile(join(dist,`extension/${page}.html`),html);}
 function crc32(buffer){let crc=0xffffffff;for(const byte of buffer){crc^=byte;for(let i=0;i<8;i++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}return (crc^0xffffffff)>>>0;}
 function chunk(type,data){const name=Buffer.from(type);const len=Buffer.alloc(4);len.writeUInt32BE(data.length);const crc=Buffer.alloc(4);crc.writeUInt32BE(crc32(Buffer.concat([name,data])));return Buffer.concat([len,name,data,crc]);}
 for(const n of [16,32,48,128]){

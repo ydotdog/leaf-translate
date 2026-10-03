@@ -2,33 +2,33 @@ import { AppError, validateBatch, parseTranslations, LANGUAGES } from '../shared
 
 export function apiError(status,body,requestId) {
   const code=body?.error?.code || body?.code || `HTTP_${status}`;
-  const messages={subscription_sharing_usage_limit_exceeded:'已达到本应用或 ChatGPT 额度限制，请前往 ChatGPT 管理用量。',subscription_sharing_user_not_eligible:'此账号或工作区暂不支持共享 ChatGPT 额度。',subscription_sharing_usage_unavailable:'ChatGPT 暂时无法核实额度，请稍后重试。',subscription_sharing_unsupported_capability:'所选模型或请求能力暂不受支持，请更换模型。',subscription_sharing_route_not_supported:'此账号暂不能使用该接入方式。',subscription_sharing_invalid_user:'ChatGPT 登录身份未获接受，请重新连接。'};
-  return new AppError(code,messages[code] || (status===401?'登录已过期或权限未获接受，请重新连接。':status===429?'请求过于频繁或额度受限，请稍后重试。':status===403?'ChatGPT 拒绝了请求，请检查账号权限和服务可用地区。':'ChatGPT 服务暂时无法完成请求，请稍后重试。'),{status,requestId,param:body?.error?.param || null});
+  const messages={subscription_sharing_usage_limit_exceeded:'errorUsageLimit',subscription_sharing_user_not_eligible:'errorNotEligible',subscription_sharing_usage_unavailable:'errorUsageUnavailable',subscription_sharing_unsupported_capability:'errorCapability',subscription_sharing_route_not_supported:'errorRoute',subscription_sharing_invalid_user:'errorInvalidUser'};
+  return new AppError(code,messages[code] || (status===401?'errorUnauthorized':status===429?'errorRateLimit':status===403?'errorForbidden':'errorService'),{status,requestId,param:body?.error?.param || null});
 }
 export async function readResponseStream(response) {
-  const reader=response.body?.getReader(); if(!reader) throw new AppError('STREAM','未收到翻译数据。');
+  const reader=response.body?.getReader(); if(!reader) throw new AppError('STREAM','errorStreamMissing');
   const decoder=new TextDecoder();let buffer='',text='',completed=false,total=0;
   function event(frame) {
     const data=frame.split(/\r?\n/).filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trimStart()).join('\n');
     if(!data || data==='[DONE]') return;
-    let e;try {e=JSON.parse(data);}catch{throw new AppError('STREAM','收到无效的翻译数据。');}
+    let e;try {e=JSON.parse(data);}catch{throw new AppError('STREAM','errorStreamInvalid');}
     if(e.type==='response.output_text.delta') text+=e.delta || '';
     else if(e.type==='response.completed') {
-      if(e.response?.status && e.response.status!=='completed') throw new AppError('STREAM','翻译未完整结束。');
+      if(e.response?.status && e.response.status!=='completed') throw new AppError('STREAM','errorStreamIncomplete');
       completed=true;
       if(!text) text=(e.response?.output || []).flatMap(x=>x.content || []).filter(x=>x.type==='output_text').map(x=>x.text).join('');
     } else if(e.type==='response.failed' || e.type==='error') throw apiError(0,e.response || {error:e.error || e},response.headers.get('x-request-id'));
-    else if(e.type==='response.incomplete') throw new AppError('INCOMPLETE','翻译被中断，原文已保留，请重试。');
+    else if(e.type==='response.incomplete') throw new AppError('INCOMPLETE','errorInterrupted');
   }
   try {
     while(true) {
       const {done,value}=await reader.read();if(done)break;
-      total+=value.byteLength;if(total>4*1024*1024) throw new AppError('STREAM','翻译响应超出大小限制。');
+      total+=value.byteLength;if(total>4*1024*1024) throw new AppError('STREAM','errorStreamSize');
       buffer+=decoder.decode(value,{stream:true});
       let match;while((match=/\r?\n\r?\n/.exec(buffer))){event(buffer.slice(0,match.index));buffer=buffer.slice(match.index+match[0].length);}
     }
     buffer+=decoder.decode();if(buffer.trim())event(buffer);
-    if(!completed) throw new AppError('INTERRUPTED','网络中断，译文未完整返回，请重试。');
+    if(!completed) throw new AppError('INTERRUPTED','errorNetworkInterrupted');
     return text;
   } finally {await reader.cancel().catch(()=>{});reader.releaseLock();}
 }
@@ -36,7 +36,7 @@ export async function listModels(auth) {
   const {token}=await auth.access();
   const response=await fetch('https://api.openai.com/v1/models',{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(30000)});
   const body=await response.json().catch(()=>({}));if(!response.ok)throw apiError(response.status,body,response.headers.get('x-request-id'));
-  if(!Array.isArray(body.models))throw new AppError('MODELS','ChatGPT 模型列表格式不受支持。');
+  if(!Array.isArray(body.models))throw new AppError('MODELS','errorModelsFormat');
   return body.models.filter(m=>m.visibility==='list' && typeof m.slug==='string').map(m=>({id:m.slug,name:m.display_name || m.slug}));
 }
 export async function translate(auth,value,signal) {

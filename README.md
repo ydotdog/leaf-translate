@@ -1,81 +1,100 @@
-# 叶译 · Leaf Translate
+# Leaf Translate · 叶译
 
-Chrome Manifest V3 双语网页翻译插件。使用 **OpenAI 官方 Sign in with ChatGPT** 授权，在账号允许的范围内使用 ChatGPT 套餐或额度，不需要填写 API Key。
+English · [简体中文](README.zh-CN.md)
 
-这是可加载的开发者版，包含完整源码、已构建插件和本地连接组件；未发布 Chrome Web Store。MIT 许可。需要 Node.js 22+、Chrome 120+；macOS 也支持 Dia。
+A Manifest V3 browser extension for bilingual webpages, using **official Sign in with ChatGPT** and eligible ChatGPT plan usage. No API key is required. Each user signs in with their own account on their own device.
 
-**下载安装包：[v0.1.0 开发者预览版](https://github.com/ydotdog/leaf-translate/releases/tag/v0.1.0)**。请选择 Release 附件中的 `leaf-translate-0.1.0.zip`；GitHub 自动生成的 Source code 压缩包不包含 `dist`，需要先按下方开发说明构建。
+Open source under the [MIT License](LICENSE). This is a developer preview, **not a Chrome Web Store release**. Requires Node.js 22+ and Chrome 120+; Dia is also supported on macOS.
 
-![双语网页排版示例，使用固定测试译文](docs/screenshots/bilingual-desktop.png)
+**[Download v0.2.0](https://github.com/ydotdog/leaf-translate/releases/tag/v0.2.0)** and choose the `leaf-translate-0.2.0.zip` attachment. GitHub’s automatic source archives do not include the built `dist` directory; build those from source first. The older v0.1.0 release does not contain the scrolling/navigation fixes or three-language UI.
 
-## 安装（Mac）
+![Bilingual layout with fixed test translations, not live model output](docs/screenshots/bilingual-desktop.png)
 
-1. 解压完整的 `leaf-translate` 文件夹。
-2. Chrome 双击 `install-macos.command`；Dia 双击 `install-dia-macos.command`。若同时使用两个浏览器，两个安装器各运行一次。若提示没有 Node.js，先从 [Node.js 官网](https://nodejs.org/) 安装 22 或更新版本。
-3. 在对应浏览器打开 `chrome://extensions`（Dia 会显示为 `dia://extensions`），开启「开发者模式」，点击「加载已解压的扩展程序」。按 `⌘⇧G` 输入 **`~/Library/Application Support/Leaf Translate/extension`** 并选择此目录。安装器已将插件复制到这个固定位置。
-4. 点击叶译的设置按钮，选择 **Continue with ChatGPT**，在官方页面完成登录并授权使用 ChatGPT 额度。
-5. 选择账号返回的可用模型。打开普通网页，点击「翻译当前网页」。
+## Install on macOS
 
-快捷键：`Alt + Shift + T` 切换双语 / 原文。也可以右键网页选择叶译。Chrome 工具栏的拼图菜单中可固定叶译。
+1. Extract the complete `leaf-translate` folder. Install [Node.js 22 or newer](https://nodejs.org/) if needed.
+2. Run `install-macos.command` for Chrome or `install-dia-macos.command` for Dia. Run each installer once if using both browsers. Review the scripts before running them; follow macOS security prompts without disabling system protections.
+3. Open `chrome://extensions` (Dia displays `dia://extensions`), enable **Developer mode**, then **Load unpacked**. Press `⌘⇧G` in the folder chooser and enter `~/Library/Application Support/Leaf Translate/extension`. Select that installed directory.
+4. Open Leaf Translate’s settings and choose **Continue with ChatGPT**. Complete sign-in and plan-usage consent on OpenAI’s official page.
+5. Select an available model returned for your account. Open a regular webpage and click **Translate this page**.
 
-两个浏览器共用本机 ChatGPT 登录记录；翻译偏好分别保存在各自浏览器中。一处退出会断开共享账号。如果 Chrome 的目录选择按钮一直灰色，取消选择，重启 Chrome 后重试。更新开发版时重新运行安装器，再在两个浏览器的扩展页点击叶译的「重新加载」。
+`Alt + Shift + T` toggles translation and the original. A page context-menu entry is also available. Pin Leaf Translate through the browser’s extensions menu if desired.
 
-固定扩展 ID：`hkpccpakokoliiahjeifekgadoffdpac`。请保留 `extension-key.json` 和构建后的 manifest key，否则本地组件的允许列表需要同步更新。
+Chrome and Dia share the local account records, while each browser stores its own translation preferences. Signing out disconnects that shared account. The fixed extension ID is `hkpccpakokoliiahjeifekgadoffdpac`. `extension-key.json` contains a **public** manifest key, not an authentication credential; keep it so the Native Messaging allowlist continues to match.
 
-## 为什么有本地组件
+## Update and uninstall
 
-当前官方开源应用登录流程要求 `http://127.0.0.1:<随机端口>/auth/callback`，并要求令牌保留在受保护的本地存储，不放入浏览器存储。纯 Chrome 扩展不能监听这个回调，所以叶译通过 Chrome Native Messaging 使用一个本地 Node 组件。
+To update, download the new release and run the installer for each browser you use. This updates both the extension and its local component. In each browser’s extension manager, click Leaf Translate’s **Reload**. Refresh an already-open webpage before starting translation again; the entire browser need not restart. Replacing only extension JavaScript does not update the native sign-in callback page.
 
-- Chrome 按需启动组件，无需一直开着终端，无需 Codex CLI。
-- 回调只在登录期间监听本机地址，完成、取消或十分钟超时后关闭。
-- 扩展和组件通过标准输入/输出通信；没有长期运行的 HTTP 翻译代理。
-- OpenAI 令牌不会返回扩展或网页，页面内容由本地组件直接发送至 `api.openai.com/v1/responses`。
-- 不读取 ChatGPT/Codex 的既有凭据，不使用 ChatGPT 网页的内部 `backend-api`。
-
-官方接入说明：[开源应用与 ChatGPT 额度](https://developers.openai.com/siwc/token-sharing-open-source)、[登录与回调](https://developers.openai.com/siwc/token-sharing-open-source/sign-in)。是否可授权、模型可用性和限额，以当前账号与 OpenAI 返回结果为准。
-
-## 阅读与排版
-
-- 段落级双语对照，原节点不替换；恢复原文只移除插件添加的内容。
-- 保留链接、强调、上下标、嵌套列表、表格单元格和段落顺序。
-- 译文采用 Shadow DOM 隔离样式，继承字号和文字颜色；适配窄屏、深色页面及阿拉伯语阅读方向。
-- 长页面按视口附近范围翻译，支持批量请求、内存缓存、动态追加和原文变更。
-- 长段落分块，分块时保持行内格式标记配对；仅在完整响应校验通过后显示译文。
-- 暂停、继续、一键恢复；同一标签页同源导航会取消旧任务并自动翻译新页面，暂停状态会保留。额度错误会暂停，保留原文，不切换计费方式。
-- 跳过输入框、可编辑内容、隐藏区域、代码块、数学公式、导航及显式不翻译区域；行内代码在译文中原样保留。
-
-「优先正文」选择可见 main（含 role="main"），没有 main 时选择唯一可见的顶层 article，否则使用页面正文。信息流中的多篇帖子和后续加载内容会持续扫描；已有节点的文字、链接及行内格式变化也会重新核对译文。持续页面更新不会无限推迟扫描。可切换「整个页面」以包含正文以外的内容。插件是通用启发式实现，未宣称兼容所有站点。部分固定高度、裁剪或高度定制的页面仍可能需要网站专用规则。
-
-当前不支持 PDF、图片 OCR、iframe、Shadow DOM 内部、字幕与 Chrome 内部页面。最多扫描约 3,000 个段落；flex/grid 中没有独立元素容器的裸文本会保守跳过。当前提供双语与恢复原文两种视图，没有“仅译文”模式。
-
-开启后，同源 SPA 路由切换、前进/后退、刷新和普通页面跳转无需再次点击翻译。点击「恢复原文」、关闭标签页或跨源导航会结束该标签页的自动续译；再次启用需主动点击扩展。跨来源（包括协议、子域名或端口变化）受 `activeTab` 授权边界限制，不申请常驻网站权限。暂停期间新页面会保持暂停，点击「继续」后才发送文本。没有新增站点排除名单，原有 `translate="no"` 等内容排除仍有效。
-
-## 数据与权限
-
-用户点击翻译后，所选范围内、阅读位置附近的文本段落会发送给 OpenAI。网页中的私人文章、邮件等可读正文同样可能包含私人信息；插件不会判断正文是否敏感。输入框、密码框和草稿编辑区不读取。
-
-Chrome 权限只有 `activeTab`、`scripting`、`storage`、`nativeMessaging`、`contextMenus`。没有所有网站的常驻访问权限、Cookie 权限、遥测或第三方翻译服务。浏览器仅保存偏好、首次提示状态和短期任务授权。翻译缓存只在当前页面内存中，恢复原文、刷新或导航后清空。
-
-Mac 本地组件、固定插件副本与账号记录位于 `~/Library/Application Support/Leaf Translate/`。Chrome 主机注册位于 `~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.leaf_translate.host.json`，Dia 注册位于 `~/Library/Application Support/Dia/User Data/NativeMessagingHosts/com.leaf_translate.host.json`。Linux 对应 `~/.config/leaf-translate/` 和 `~/.config/google-chrome/NativeMessagingHosts/`。凭据目录权限 0700，凭据文件 0600，使用原子替换和跨进程刷新锁；没有声称使用系统钥匙串加密。
-
-退出时尝试撤销远端刷新会话，然后清除本地令牌，保留注册映射和主机 ID 便于再次登录。若远端撤销未确认，界面会提示到 [ChatGPT 用量设置](https://chatgpt.com/settings/usage) 断开授权。
-
-## 开发、Linux 与卸载
+To uninstall, sign out in Leaf Translate and, if needed, disconnect its authorization in [ChatGPT usage settings](https://chatgpt.com/settings/usage). Remove the extension from your browser, then run:
 
 ```sh
+npm run uninstall:host                      # Chrome
+npm run uninstall:host -- --browser dia     # Dia on macOS
+npm run uninstall:host -- --browser all     # both on macOS
+```
+
+These commands remove only the selected browser’s host registration. They preserve the shared component, extension copy and account records for any other browser still using them. After removing both installations, you can manually delete the Leaf Translate data directory listed in the [privacy notice](docs/PRIVACY.md). Deleting local files does not itself revoke remote authorization.
+
+## Interface languages
+
+The app follows **Chrome’s UI language**, using `chrome.i18n.getUILanguage()`, not the webpage language or Accept-Language preferences. English, Simplified Chinese and Traditional Chinese are complete across the popup, options, onboarding, connection/error states, context menu, command description, page toolbar and local OAuth callback pages.
+
+- `zh-Hans`, mainland China and Singapore use Simplified Chinese.
+- `zh-Hant`, Taiwan, Hong Kong and Macau use Traditional Chinese. Explicit script takes precedence over region.
+- Other languages fall back to English. Bare `zh` uses Simplified Chinese.
+
+Reopen extension pages after changing browser language; context menus refresh on browser startup. **UI language never changes your translation target.** The initial target remains Simplified Chinese, and saved choices remain intact. Target-language names use their native names; model names come from OpenAI. OpenAI controls its own hosted sign-in pages. Local callback pages use the language of the browser that started sign-in. Terminal installers use English because they have no Chrome UI language context.
+
+## ChatGPT account and usage conditions
+
+Leaf Translate implements OpenAI’s [open-source, locally hosted ChatGPT plan-usage flow](https://developers.openai.com/siwc/token-sharing-open-source). A new user’s sign-in dynamically creates a registration bound to that user and workspace, with a stable local host identifier. No maintainer credentials or shared accounts are distributed. The app requests the plan-usage scope and uses the account’s available models.
+
+**MIT licensing does not mean unlimited free inference or guaranteed account eligibility.** Availability, model access, usage limits and consent depend on the user’s account/workspace and OpenAI’s current rules. Limits pause translation and preserve the original. There is no automatic API-key or billed fallback. You can manage authorization and usage in ChatGPT settings.
+
+Paid or remotely hosted integrations have separate [OpenAI commercial access requirements](https://developers.openai.com/siwc/request-client-id). The software license does not replace OpenAI’s service terms, confer official endorsement, or create a production OAuth client for a commercial service.
+
+## Why a local component?
+
+The official OSS sign-in flow uses a temporary loopback callback at `http://127.0.0.1:<random-port>/auth/callback`. Tokens must stay in protected local storage, outside browser storage. A Chrome extension cannot host that callback, so Leaf Translate uses a Node.js component over Native Messaging.
+
+The browser starts it on demand; no terminal or Codex CLI is needed. The callback listener closes after completion, cancellation or a ten-minute timeout. There is no persistent HTTP translation proxy. The component communicates through standard input/output and sends page text directly to `https://api.openai.com/v1/responses`. It never returns tokens to the extension or webpage, reads existing ChatGPT/Codex credentials, or uses ChatGPT’s internal web APIs.
+
+## Reading behavior and limits
+
+Translations appear beside their source blocks without replacing original nodes. Links, emphasis, inline code, lists and table cells retain their structure. Shadow DOM isolates styles; dark pages, narrow layouts and right-to-left translated text are supported. Long text is split with formatting markers preserved and validated before display.
+
+Only blocks near the reading position are translated. Newly appended content, recycled feed nodes and changed source text/links are reconciled during continuous updates. **Main content first** uses a visible `main`, a unique visible top-level `article`, or the page body when a feed contains multiple articles. **Entire page** includes content outside that reading scope.
+
+Within an enabled tab, same-origin SPA routes, back/forward, refreshes and ordinary navigation continue translation. Pause survives same-origin navigation; resume sends queued text. Restore original, closing the tab or crossing origins ends automatic continuation. A different protocol, subdomain or port is a different origin. New tabs need an explicit translation action. No persistent website access is requested.
+
+This uses general DOM heuristics, not a guarantee of compatibility with every website. Scanning is capped at about 3,000 blocks. Inputs, editable areas, hidden regions, navigation, code blocks, math and explicit translation opt-outs are skipped. Bare text in flex/grid containers is handled conservatively. PDFs, image OCR, subtitles, iframes, shadow DOM content and browser internal pages are not supported. There is no translation-only view.
+
+## Privacy and permissions
+
+Starting translation sends readable text near your viewport to OpenAI, including sensitive article or email content if present. The app does not determine whether readable text is sensitive. Password/input fields and editable drafts are skipped. See the bilingual [privacy notice](docs/PRIVACY.md) for storage locations, deletion and data flow.
+
+Permissions remain `activeTab`, `scripting`, `storage`, `nativeMessaging` and `contextMenus`. No all-sites host permission, cookie permission, telemetry or third-party translation service is added. Tokens are stored locally with directory mode `0700` and file mode `0600`; **they are not encrypted with the OS keychain**. Translation caches are in page memory and clear on restore, refresh or navigation.
+
+## Build and Linux
+
+```sh
+git clone https://github.com/ydotdog/leaf-translate.git
+cd leaf-translate
 npm ci
-npm test
-# npm test 会先构建，然后执行回归测试
+npm test                 # builds first, then runs regression tests
 npm run build
 npm run install:host
 ```
 
-Linux 运行 `npm run install:host` 后，在 Chrome 加载安装器输出的固定目录 `~/.config/leaf-translate/extension`。Linux 安装尚未实机验证。Chromium/Edge 和 Windows 尚未提供正式安装流程。
+On Linux, load the installed `~/.config/leaf-translate/extension` directory in Chrome. Linux installation has not been tested on a real Linux desktop. Windows, Chromium and Edge do not currently have a validated installation workflow. On macOS, `npm run install:host -- --browser dia` registers Dia, and `--browser all` registers both browsers. The default is Chrome.
 
-Mac 命令行可用 `npm run install:host -- --browser dia` 单独注册 Dia，或用 `--browser all` 同时注册 Chrome 与 Dia。默认仅注册 Chrome。
+This is a JavaScript project with no independent TypeScript typecheck. Tests cover parsing, OAuth safeguards, native framing/storage, DOM preservation, dynamic translation/navigation, locale completeness and UI states. The build checks syntax and bundling.
 
-卸载：先在叶译退出，并按需在 ChatGPT 设置断开授权；在浏览器移除扩展，然后运行 `npm run uninstall:host`（Chrome）、`npm run uninstall:host -- --browser dia` 或 `npm run uninstall:host -- --browser all`。卸载命令只移除所选浏览器的连接注册，保留其他浏览器可能仍在使用的共享组件、插件副本与账号记录。两个浏览器都卸载后，如需彻底清理，再手动删除上面的 Leaf Translate 应用数据目录。
+## Verification status
 
-## 验证状态
+See [localization and publication QA](docs/PUBLICATION-QA.md), [scroll/navigation evidence](docs/SCROLL-NAVIGATION-QA.md), [initial QA](docs/QA.md) and [references](docs/REFERENCES.md).
 
-见 [测试报告](docs/QA.md) 和 [设计与开源参考](docs/REFERENCES.md)。自动测试、真实 Chrome 与 Dia 的安装和本地连接、独立 Chrome 的固定译文排版流程已经验证。**尚未完成用户真实 OAuth 授权、真实模型翻译与 ChatGPT 用量核对**，因此当前交付不能作为账号服务端开通或真实翻译质量的证明。
+Real x.com public pages were exercised in an isolated browser with continuous scrolling and same-origin navigation, using **fixed local translation responses**. The guest login wall limited further loading; this does not prove logged-in infinite-feed behavior. Local fixtures cover repeated append/reuse, continuous updates, stop/resume and navigation. Three-language UI checks use isolated Chrome for Testing and simulated account responses, without changing the user’s browser language or spending plan allowance.
+
+Real OAuth consent, live model translation quality and ChatGPT usage accounting have **not** been verified as part of this release. Installing or opening the UI is not proof of server-side account eligibility.

@@ -6,20 +6,21 @@ import {randomUUID} from 'node:crypto';
 
 const bundle=await readFile(new URL('../dist/extension/background.js',import.meta.url),'utf8');
 const event=()=>({listeners:[],addListener(fn){this.listeners.push(fn);},async emit(...args){await Promise.all(this.listeners.map(fn=>fn(...args)));}});
-function harness(){
-  const id='test-extension',messages=[],injections=[],nativeMessages=[];
+function harness(locale='en'){
+  const id='test-extension',messages=[],injections=[],nativeMessages=[],menus=[];
   let saved=[],tab={id:1,url:'https://example.org/start',status:'complete'},documentId='doc-1',injectionGate;
   const onNative=event(),port={onMessage:onNative,onDisconnect:event(),postMessage(message){
     nativeMessages.push(message);
+    if(message.method==='login')queueMicrotask(()=>onNative.emit({id:message.id,ok:true,result:{pending:true}}));
     if(message.method==='status')queueMicrotask(()=>onNative.emit({id:message.id,ok:true,result:{active:'test',profiles:[{id:'test',sharing:true}]}}));
   }};
-  const chrome={
-    runtime:{id,getURL:path=>`chrome-extension://${id}/${path}`,onMessage:event(),onInstalled:event(),connectNative:()=>port,sendMessage:async()=>{},openOptionsPage:async()=>{}},
+  const chrome={i18n:{getUILanguage:()=>locale},
+    runtime:{id,getURL:path=>`chrome-extension://${id}/${path}`,onMessage:event(),onInstalled:event(),onStartup:event(),connectNative:()=>port,sendMessage:async()=>{},openOptionsPage:async()=>{}},
     storage:{session:{get:async()=>({sessions:saved}),set:async value=>{saved=structuredClone(value.sessions);}},local:{get:async()=>({settings:{model:'fixture'}})}},
     action:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
     scripting:{executeScript:async value=>{injections.push(value);if(injectionGate)await injectionGate;return [{documentId}];}},
     tabs:{get:async()=>({...tab}),sendMessage:async(tabId,message,options)=>{messages.push({tabId,...message,...options});return {active:message.type!=='leaf.stop'};},query:async()=>[tab],onRemoved:event(),onUpdated:event()},
-    contextMenus:{onClicked:event(),removeAll:fn=>fn(),create:()=>{}},commands:{onCommand:event()}
+    contextMenus:{onClicked:event(),removeAll:fn=>fn(),create:menu=>menus.push(menu)},commands:{onCommand:event()}
   };
   runInNewContext(bundle,{chrome,crypto:{randomUUID},URL,setTimeout,clearTimeout,console});
   const ui={id,url:`chrome-extension://${id}/popup.html`};
@@ -32,7 +33,7 @@ function harness(){
     await chrome.tabs.onUpdated.emit(1,{url,status:tab.status},{...tab});
   };
   const complete=async()=>{tab.status='complete';await chrome.tabs.onUpdated.emit(1,{status:'complete'},{...tab});};
-  return {chrome,messages,injections,nativeMessages,rpc,start,session,fromPage,navigate,complete,gate:promise=>{injectionGate=promise;}};
+  return {chrome,messages,injections,nativeMessages,menus,rpc,start,session,fromPage,navigate,complete,gate:promise=>{injectionGate=promise;}};
 }
 
 test('same-document push/replace/back/forward routes resume without another user gesture',async()=>{
@@ -91,4 +92,9 @@ test('previous document/run cannot submit work after same-origin continuation',a
   const response=await h.rpc({type:'translate',runId:old.runId,items:[{id:'one',text:'Old source'}]},{id:'test-extension',tab:{id:1},documentId:old.documentId,url:old.url});
   assert.equal(response.ok,false);assert.equal(response.error.code,'CANCELLED');
   assert.equal(h.nativeMessages.filter(m=>m.method==='translate').length,0);
+});
+
+test('context menus and native callback locale follow browser UI language',async()=>{
+  const {catalogs}=await import('../src/shared/i18n.js');
+  for(const locale of Object.keys(catalogs)){const h=harness(locale);await h.chrome.runtime.onInstalled.emit();await h.chrome.runtime.onStartup.emit();assert.equal(h.menus.length,2);assert.ok(h.menus.every(m=>m.title===catalogs[locale].contextToggle));await h.rpc({type:'login'});assert.equal(h.nativeMessages.find(m=>m.method==='login').params.locale,locale);assert.equal(h.nativeMessages.find(m=>m.method==='login').params.target,undefined);}
 });

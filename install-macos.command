@@ -3,9 +3,9 @@ set -eu
 cd -- "${0:A:h}"
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 if ! command -v node >/dev/null 2>&1; then
-  print '请先安装 Node.js 22 或更新版本：https://nodejs.org/'
-  read '?按回车退出。'
+  print 'Install Node.js 22 or newer first: https://nodejs.org/'
+  read '?Press Return to exit.'
   exit 1
 fi
 node scripts/install-host.mjs
-read '?按回车关闭窗口。'
+read '?Press Return to close this window.'

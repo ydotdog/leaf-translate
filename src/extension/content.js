@@ -1,3 +1,4 @@
+import {t,errorText,uiLocale} from '../shared/i18n.js';
 import {collectBlocks,serializeNodes,splitMarkedText,createTranslation} from './dom.js';
 
 if(!globalThis.__leafTranslate) {
@@ -5,22 +6,22 @@ if(!globalThis.__leafTranslate) {
   let runId=null,settings=null,paused=false,working=false,scanTimer=null,observer=null,intersection=null,toolbar=null,error='',generation=0;
   let records=new Map(),cache=new Map(),observedElements=new Set(),pageURL=location.href,pauseSync=Promise.resolve();
   const signature=block=>JSON.stringify([block.text,[...block.tags]]);
-  const send=async payload=>{const response=await chrome.runtime.sendMessage(payload);if(!response?.ok)throw Object.assign(new Error(response?.error?.message || '无法连接翻译组件。'),response?.error);return response.result;};
+  const send=async payload=>{const response=await chrome.runtime.sendMessage(payload);if(!response?.ok)throw Object.assign(new Error(response?.error?.message || t('errorContentConnection')),response?.error);return response.result;};
   const status=()=>({active:Boolean(runId),paused,working,done:[...records.values()].filter(r=>r.host).length,total:records.size,error});
   function update() {
-    if(!toolbar)return;const s=status();toolbar.shadowRoot.querySelector('.status').textContent=error || `${s.done} / ${s.total} 段${paused?' · 已暂停':working?' · 翻译中':' · 随阅读继续'}`;
-    toolbar.shadowRoot.querySelector('.pause').textContent=paused?'继续':'暂停';
+    if(!toolbar)return;const s=status();toolbar.shadowRoot.querySelector('.status').textContent=error || t('progress',{done:s.done,total:s.total,state:t(paused?'paused':working?'translating':'asYouRead')});
+    toolbar.shadowRoot.querySelector('.pause').textContent=t(paused?'resume':'pause');
   }
   function makeToolbar() {
-    toolbar=document.createElement('div');toolbar.dataset.leafRoot='toolbar';toolbar.style.cssText='position:fixed!important;right:20px!important;bottom:20px!important;z-index:2147483647!important;display:block!important;max-width:calc(100vw - 40px)!important;';
+    toolbar=document.createElement('div');toolbar.dataset.leafRoot='toolbar';toolbar.lang=uiLocale();toolbar.dir='ltr';toolbar.style.cssText='position:fixed!important;right:20px!important;bottom:20px!important;z-index:2147483647!important;display:block!important;max-width:calc(100vw - 40px)!important;';
     const root=toolbar.attachShadow({mode:'open'});const style=document.createElement('style');style.textContent=':host{color-scheme:light dark}*{box-sizing:border-box}.bar{font:13px/1.5 system-ui,sans-serif;display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 12px;border:1px solid #bed2c5;border-radius:14px;background:#f9fcf8;color:#173f32;box-shadow:0 5px 25px #0002;max-width:440px}.status{max-width:260px;overflow-wrap:anywhere}button{font:inherit;border:0;background:#e6eee7;color:inherit;padding:5px 9px;border-radius:7px;cursor:pointer}button:focus-visible{outline:2px solid #1c7857;outline-offset:2px}@media(prefers-color-scheme:dark){.bar{background:#162820;color:#e2eee5;border-color:#395b47}button{background:#2b4336}}@media print{.bar{display:none}}';
-    const bar=document.createElement('div');bar.className='bar';bar.setAttribute('role','region');bar.setAttribute('aria-label','Leaf Translate');
+    const bar=document.createElement('div');bar.className='bar';bar.setAttribute('role','region');bar.setAttribute('aria-label',t('appName'));
     const label=document.createElement('span');label.className='status';label.setAttribute('role','status');label.setAttribute('aria-live','polite');
     const pause=document.createElement('button');pause.className='pause';pause.onclick=()=>{
       paused=!paused;const next=paused,id=runId,epoch=generation;if(!paused)error='';update();
       pauseSync=pauseSync.catch(()=>{}).then(()=>send({type:'pausePage',runId:id,paused:next})).catch(()=>{}).then(()=>{if(epoch===generation && !paused)pump();});
     };
-    const restore=document.createElement('button');restore.textContent='恢复原文';restore.onclick=()=>send({type:'stopPage'}).catch(()=>stop());
+    const restore=document.createElement('button');restore.textContent=t('restore');restore.onclick=()=>send({type:'stopPage'}).catch(()=>stop());
     bar.append(label,pause,restore);root.append(style,bar);document.body.append(toolbar);update();
   }
   function stop() {
@@ -73,7 +74,7 @@ if(!globalThis.__leafTranslate) {
           cache.set(job.key,translated);if(cache.size>500)cache.delete(cache.keys().next().value);update();
         }
       }
-    }catch(e){if(epoch===generation && e.code!=='CANCELLED'){error=e.message;paused=true;send({type:'pausePage',runId:thisRun,paused:true}).catch(()=>{});}}
+    }catch(e){if(epoch===generation && e.code!=='CANCELLED'){error=errorText(e);paused=true;send({type:'pausePage',runId:thisRun,paused:true}).catch(()=>{});}}
     finally {todo.forEach(r=>r.busy=false);if(epoch===generation){working=false;update();if(!paused)setTimeout(pump,120);}}
   }
   function start(config) {

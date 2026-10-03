@@ -1,0 +1,306 @@
+[
+  {
+    "locale": "en",
+    "type": "popup",
+    "lang": "en",
+    "title": "Leaf Translate",
+    "connection": "ChatGPT connected",
+    "target": "ja",
+    "width": 372,
+    "viewport": 372,
+    "height": 572,
+    "button": {
+      "x": 20,
+      "y": 429.5,
+      "width": 332,
+      "height": 43.5,
+      "top": 429.5,
+      "right": 352,
+      "bottom": 473,
+      "left": 20
+    },
+    "settingsTitle": "Connection and settings"
+  },
+  {
+    "locale": "en",
+    "type": "options",
+    "lang": "en",
+    "title": "Leaf Translate",
+    "connection": "ChatGPT connected",
+    "target": "ja",
+    "width": 1100,
+    "viewport": 1100,
+    "height": 1108,
+    "button": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "settingsTitle": "Connection and settings"
+  },
+  {
+    "locale": "en",
+    "state": "signedOut",
+    "connection": "Connect your ChatGPT",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "en",
+    "state": "pending",
+    "connection": "Waiting for official sign-in authorization",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "en",
+    "state": "error",
+    "connection": "Signed in · Plan authorization needed",
+    "message": "This app or your ChatGPT plan has reached a usage limit. Manage usage in ChatGPT.",
+    "setupVisible": false
+  },
+  {
+    "locale": "en",
+    "state": "missing",
+    "connection": "Local connection component is not ready",
+    "message": "",
+    "setupVisible": true
+  },
+  {
+    "locale": "en",
+    "dialog": "Using your ChatGPT plan"
+  },
+  {
+    "locale": "zh-CN",
+    "type": "popup",
+    "lang": "zh-CN",
+    "title": "叶译 · Leaf Translate",
+    "connection": "ChatGPT 已连接",
+    "target": "ja",
+    "width": 372,
+    "viewport": 372,
+    "height": 583,
+    "button": {
+      "x": 20,
+      "y": 440.5,
+      "width": 332,
+      "height": 43.5,
+      "top": 440.5,
+      "right": 352,
+      "bottom": 484,
+      "left": 20
+    },
+    "settingsTitle": "连接与设置"
+  },
+  {
+    "locale": "zh-CN",
+    "type": "options",
+    "lang": "zh-CN",
+    "title": "叶译 · Leaf Translate",
+    "connection": "ChatGPT 已连接",
+    "target": "ja",
+    "width": 1100,
+    "viewport": 1100,
+    "height": 1069,
+    "button": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "settingsTitle": "连接与设置"
+  },
+  {
+    "locale": "zh-CN",
+    "state": "signedOut",
+    "connection": "连接你的 ChatGPT",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-CN",
+    "state": "pending",
+    "connection": "等待官方登录授权",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-CN",
+    "state": "error",
+    "connection": "已登录 · 待授权额度",
+    "message": "已达到本应用或 ChatGPT 额度限制，请前往 ChatGPT 管理用量。",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-CN",
+    "state": "missing",
+    "connection": "本地连接组件尚未就绪",
+    "message": "",
+    "setupVisible": true
+  },
+  {
+    "locale": "zh-CN",
+    "dialog": "正在使用你的 ChatGPT 额度"
+  },
+  {
+    "locale": "zh-TW",
+    "type": "popup",
+    "lang": "zh-TW",
+    "title": "葉譯 · Leaf Translate",
+    "connection": "ChatGPT 已連線",
+    "target": "ja",
+    "width": 372,
+    "viewport": 372,
+    "height": 583,
+    "button": {
+      "x": 20,
+      "y": 440.5,
+      "width": 332,
+      "height": 43.5,
+      "top": 440.5,
+      "right": 352,
+      "bottom": 484,
+      "left": 20
+    },
+    "settingsTitle": "連線與設定"
+  },
+  {
+    "locale": "zh-TW",
+    "type": "options",
+    "lang": "zh-TW",
+    "title": "葉譯 · Leaf Translate",
+    "connection": "ChatGPT 已連線",
+    "target": "ja",
+    "width": 1100,
+    "viewport": 1100,
+    "height": 1069,
+    "button": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "settingsTitle": "連線與設定"
+  },
+  {
+    "locale": "zh-TW",
+    "state": "signedOut",
+    "connection": "連接你的 ChatGPT",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-TW",
+    "state": "pending",
+    "connection": "等待官方登入授權",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-TW",
+    "state": "error",
+    "connection": "已登入 · 待授權額度",
+    "message": "已達到本應用程式或 ChatGPT 額度限制，請前往 ChatGPT 管理用量。",
+    "setupVisible": false
+  },
+  {
+    "locale": "zh-TW",
+    "state": "missing",
+    "connection": "本機連線元件尚未就緒",
+    "message": "",
+    "setupVisible": true
+  },
+  {
+    "locale": "zh-TW",
+    "dialog": "正在使用你的 ChatGPT 額度"
+  },
+  {
+    "locale": "fr",
+    "type": "popup",
+    "lang": "en",
+    "title": "Leaf Translate",
+    "connection": "ChatGPT connected",
+    "target": "ja",
+    "width": 372,
+    "viewport": 372,
+    "height": 572,
+    "button": {
+      "x": 20,
+      "y": 429.5,
+      "width": 332,
+      "height": 43.5,
+      "top": 429.5,
+      "right": 352,
+      "bottom": 473,
+      "left": 20
+    },
+    "settingsTitle": "Connection and settings"
+  },
+  {
+    "locale": "fr",
+    "type": "options",
+    "lang": "en",
+    "title": "Leaf Translate",
+    "connection": "ChatGPT connected",
+    "target": "ja",
+    "width": 1100,
+    "viewport": 1100,
+    "height": 1108,
+    "button": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "settingsTitle": "Connection and settings"
+  },
+  {
+    "locale": "fr",
+    "state": "signedOut",
+    "connection": "Connect your ChatGPT",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "fr",
+    "state": "pending",
+    "connection": "Waiting for official sign-in authorization",
+    "message": "",
+    "setupVisible": false
+  },
+  {
+    "locale": "fr",
+    "state": "error",
+    "connection": "Signed in · Plan authorization needed",
+    "message": "This app or your ChatGPT plan has reached a usage limit. Manage usage in ChatGPT.",
+    "setupVisible": false
+  },
+  {
+    "locale": "fr",
+    "state": "missing",
+    "connection": "Local connection component is not ready",
+    "message": "",
+    "setupVisible": true
+  },
+  {
+    "locale": "fr",
+    "dialog": "Using your ChatGPT plan"
+  }
+]

@@ -1,0 +1,82 @@
+
+> leaf-translate@0.2.0 pretest
+> npm run build
+
+
+> leaf-translate@0.2.0 build
+> node scripts/build.mjs
+
+Built extension hkpccpakokoliiahjeifekgadoffdpac
+Load unpacked: <repository>/dist/extension
+
+> leaf-translate@0.2.0 test
+> node --test tests/*.test.mjs
+
+✔ same-document push/replace/back/forward routes resume without another user gesture (4.052375ms)
+✔ same-origin new documents reinject on completion and preserve pause (1.017792ms)
+✔ explicit stop prevents later automatic translation (0.616542ms)
+✔ cross-origin, changed port and unsupported URLs revoke continuation (2.346708ms)
+✔ stop during asynchronous injection cannot resurrect a session (2.366875ms)
+✔ a superseded navigation cannot start translation for the old URL (0.745708ms)
+✔ previous document/run cannot submit work after same-origin continuation (0.598625ms)
+✔ context menus and native callback locale follow browser UI language (2.679458ms)
+✔ visible paragraphs are batched and stop during flight never reinserts a translation (142.533458ms)
+✔ dynamic paragraph changes replace stale translations instead of appending duplicates (491.869417ms)
+✔ quota error pauses the queue without repeated calls and keeps original content (115.014125ms)
+✔ SPA URL changes clear stale content and request authorized continuation (524.059667ms)
+✔ popstate requests continuation and a paused navigation stays paused (138.9835ms)
+✔ new sibling posts translate while continuous mutations never become quiet (508.616584ms)
+✔ the same text node keeps translating successive changes during continuous page activity (1433.532958ms)
+✔ many virtual-list cycles translate fresh posts and release removed observers (2376.011417ms)
+✔ offscreen posts are deferred until intersection and removed feed elements are unobserved (526.986583ms)
+✔ virtualized source replacement during a request discards the old response (494.99475ms)
+✔ recycled links with unchanged text update the translation link destination (503.07975ms)
+✔ removing one run keeps other runs on the same element observed (507.61925ms)
+✔ pause defers appended posts and resume translates them once (613.750834ms)
+✔ stop and enable again isolate late responses and clear prior work (568.849792ms)
+✔ en: page toolbar follows browser UI locale through pause/resume (39.898625ms)
+✔ zh-CN: page toolbar follows browser UI locale through pause/resume (32.941292ms)
+✔ zh-TW: page toolbar follows browser UI locale through pause/resume (30.86675ms)
+✔ batch validation rejects duplicate IDs, invalid language, oversize and arbitrary fields (1.76575ms)
+✔ translation response must match every ID and formatting marker (0.342333ms)
+✔ SSE handles fragmented UTF-8, CRLF, multiline transport and terminal success (2.877417ms)
+✔ SSE rejects truncation, incomplete output and late quota errors (0.590834ms)
+✔ public OAuth registration uses PKCE, stable host, nonce and full scopes (0.864ms)
+✔ OAuth callback rejects state mismatch, declined authorization and client substitution (0.214334ms)
+✔ native framing accepts fragmented and combined messages; rejects oversize (0.616917ms)
+✔ credentials serialize concurrent writes and survive process-like store instances (147.966083ms)
+✔ refresh rotation is serialized and never exposed through status (10.218375ms)
+✔ terminal refresh failure clears tokens but keeps registration and host (7.64525ms)
+✔ Responses request uses authorized OAuth route and never adds billed fallback or unsupported fields (0.663292ms)
+✔ ID token signature, issuer, audience, expiry, nonce and returning identity are all verified (35.025833ms)
+✔ keeps paragraph semantics, links, emphasis, table cells and nested lists without duplicate text (60.644833ms)
+✔ skips editable content, hidden ancestors, code, opt-outs and controls (9.83775ms)
+✔ inserts inside list items and table cells; restoration preserves original node identity and listeners (10.609375ms)
+✔ model HTML is rendered as inert text, unsafe source href is dropped, bad markers fail closed (4.081334ms)
+✔ long rich text splits into independently balanced chunks without text loss (4.797417ms)
+✔ dynamic replacement yields fresh source and does not translate injected content (6.003833ms)
+✔ full page mode includes sidebar content while article mode isolates the article (4.42725ms)
+✔ reading scope covers a main feed, including later articles, but excludes the sidebar (6.049375ms)
+✔ multiple sibling articles without main are all in reading scope (5.576958ms)
+✔ inline code stays byte-for-byte intact even if a model changes its text (5.116959ms)
+✔ flex/grid text stays inside an existing item and never adds a competing layout item (5.530375ms)
+✔ rich paragraphs with many tiny markers still split below the transport bound (3.513375ms)
+✔ locale resolution honors Chinese script, then region, with English fallback (0.69575ms)
+✔ all catalogs have complete matching keys and placeholders (1.719709ms)
+✔ known native errors localize and unknown upstream messages are never rendered (0.118917ms)
+✔ all internal AppError message keys exist and source UI text is marked (49.865833ms)
+✔ build has Chrome locale metadata, stable ID and unchanged permission scope (2.379834ms)
+✔ en: popup/options, onboarding, connection states, errors and targets (85.781625ms)
+✔ en: callback success and failure pages have localized text and language (4.595209ms)
+✔ zh-CN: popup/options, onboarding, connection states, errors and targets (55.130792ms)
+✔ zh-CN: callback success and failure pages have localized text and language (2.862875ms)
+✔ zh-TW: popup/options, onboarding, connection states, errors and targets (46.106833ms)
+✔ zh-TW: callback success and failure pages have localized text and language (2.901625ms)
+ℹ tests 60
+ℹ suites 0
+ℹ pass 60
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9385.374875
